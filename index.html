@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사과 수집 게임 - 로그인 & 랭킹</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .apple-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .user-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .user-details h2 {
+            color: white;
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .user-details p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+        }
+
+        .btn-logout {
+            background: rgba(244, 67, 54, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(244, 67, 54, 0.4);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: white;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .game-status {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(56, 142, 60, 0.2));
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .test-buttons {
+            margin-top: 20px;
+        }
+
+        .test-buttons p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .btn-score {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-score:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-score:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .leaderboard {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .leaderboard-item.rank-1 {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.2));
+            border: 2px solid rgba(255, 193, 7, 0.5);
+        }
+
+        .leaderboard-item.rank-2 {
+            background: linear-gradient(135deg, rgba(158, 158, 158, 0.2), rgba(117, 117, 117, 0.2));
+            border: 1px solid rgba(158, 158, 158, 0.5);
+        }
+
+        .leaderboard-item.rank-3 {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(184, 115, 51, 0.2));
+            border: 1px solid rgba(205, 127, 50, 0.5);
+        }
+
+        .leaderboard-item.rank-other {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rank-number {
+            width: 40px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-info .name {
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .player-info .student-id {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+        }
+
+        .score-info {
+            text-align: right;
+        }
+
+        .score-info .score {
+            color: white;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .score-info .level {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8em;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 40px;
+        }
+
+        .btn-refresh {
+            background: rgba(33, 150, 243, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .btn-refresh:hover {
+            background: rgba(33, 150, 243, 0.3);
+        }
+
+        .info-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .info-box p {
+            color: rgba(255, 235, 59, 0.9);
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .info-box strong {
+            color: rgba(255, 235, 59, 1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loginScreen" class="login-screen">
+            <div class="login-box">
+                <div class="login-header">
+                    <div class="apple-icon">🍎</div>
+                    <h1>사과 수집 게임</h1>
+                    <p>로그인하여 게임을 시작하세요</p>
+                </div>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label for="nameInput">이름</label>
+                        <input type="text" id="nameInput" placeholder="홍길동" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="studentIdInput">학번</label>
+                        <input type="text" id="studentIdInput" placeholder="20241234" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">로그인하고 게임 시작</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="game-screen">
+            <div class="user-header">
+                <div class="user-info">
+                    <div class="user-avatar">👤</div>
+                    <div class="user-details">
+                        <h2 id="userName"></h2>
+                        <p>학번: <span id="userStudentId"></span></p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 로그아웃</button>
+            </div>
+
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🍎 게임 영역</h3>
+                    </div>
+                    
+                    <div class="game-status">
+                        <p style="color: white; font-size: 1.2em; margin-bottom: 15px;">현재 게임 상태</p>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-icon">⭐</div>
+                                <div>레벨: 1</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">🏆</div>
+                                <div>점수: 0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">❤️</div>
+                                <div>생명: 3</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">🍎</div>
+                                <div>사과: 7</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-buttons">
+                        <p>테스트: 점수 제출하기</p>
+                        <div class="button-grid">
+                            <button class="btn-score" onclick="submitScore(100)">100점</button>
+                            <button class="btn-score" onclick="submitScore(250)">250점</button>
+                            <button class="btn-score" onclick="submitScore(500)">500점</button>
+                            <button class="btn-score" onclick="submitScore(750)">750점</button>
+                            <button class="btn-score" onclick="submitScore(1000)">1000점</button>
+                            <button class="btn-score" onclick="submitScore(1500)">1500점</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🏆 랭킹</h3>
+                        <button class="btn-refresh" onclick="loadLeaderboard()">새로고침</button>
+                    </div>
+                    
+                    <div id="leaderboard" class="leaderboard">
+                        <div class="empty-state">아직 등록된 점수가 없습니다</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p>
+                    <strong>참고:</strong> 현재는 데모 모드로 로컬 스토리지를 사용합니다. 
+                    실제 Firebase를 사용하려면 코드의 FIREBASE_CONFIG를 자신의 Firebase 설정으로 교체하고, 
+                    주석 처리된 Firebase API 호출 코드를 활성화하세요.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var FIREBASE_CONFIG = {
+            apiKey: "YOUR_API_KEY",
+            projectId: "YOUR_PROJECT_ID",
+            databaseURL: "YOUR_DATABASE_URL"
+        };
+
+        var currentUser = null;
+
+        window.onload = function() {
+            var savedUser = localStorage.getItem('gameUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showGameScreen();
+            }
+            loadLeaderboard();
+        };
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            var name = document.getElementById('nameInput').value.trim();
+            var studentId = document.getElementById('studentIdInput').value.trim();
+            
+            if (!name || !studentId) {
+                alert('이름과 학번을 모두 입력해주세요!');
+                return;
+            }
+            
+            currentUser = {
+                name: name,
+                studentId: studentId,
+                loginTime: new Date().toISOString()
+            };
+            
+            localStorage.setItem('gameUser', JSON.stringify(currentUser));
+            showGameScreen();
+        });
+
+        function showGameScreen() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userStudentId').textContent = currentUser.studentId;
+            loadLeaderboard();
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('gameUser');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('nameInput').value = '';
+            document.getElementById('studentIdInput').value = '';
+        }
+
+        function submitScore(score) {
+            if (!currentUser) {
+                alert('먼저 로그인해주세요!');
+                return;
+            }
+
+            var scoreData = {
+                name: currentUser.name,
+                studentId: currentUser.studentId,
+                score: score,
+                level: 1,
+                timestamp: new Date().toISOString()
+            };
+
+            var scores = JSON.parse(localStorage.getItem('gameScores') || '[]');
+            scores.push(scoreData);
+            localStorage.setItem('gameScores', JSON.stringify(scores));
+
+            alert('점수가 제출되었습니다!');
+            loadLeaderboard();
+        }
+
+        function loadLeaderboard() {
+            var scores = JSON.parse(localStorage.getItem('gameScores') || '[]');
+            var sortedScores = scores.sort(function(a, b) {
+                return b.score - a.score;
+            }).slice(0, 10);
+            
+            displayLeaderboard(sortedScores);
+        }
+
+        function displayLeaderboard(scores) {
+            var leaderboard = document.getElementById('leaderboard');
+            
+            if (scores.length === 0) {
+                leaderboard.innerHTML = '<div class="empty-state">아직 등록된 점수가 없습니다</div>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < scores.length; i++) {
+                var entry = scores[i];
+                var rankClass = i === 0 ? 'rank-1' : 
+                               i === 1 ? 'rank-2' : 
+                               i === 2 ? 'rank-3' : 'rank-other';
+                
+                var rankDisplay = i === 0 ? '👑' : i + 1;
+                
+                html += '<div class="leaderboard-item ' + rankClass + '">';
+                html += '<div class="rank-number">' + rankDisplay + '</div>';
+                html += '<div class="player-info">';
+                html += '<div class="name">' + entry.name + '</div>';
+                html += '<div class="student-id">학번: ' + entry.studentId + '</div>';
+                html += '</div>';
+                html += '<div class="score-info">';
+                html += '<div class="score">' + entry.score + '</div>';
+                html += '<div class="level">레벨 ' + entry.level + '</div>';
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            leaderboard.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
